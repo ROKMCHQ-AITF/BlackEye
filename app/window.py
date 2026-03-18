@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, QVBoxLayout,
-    QLabel, QPushButton, QFileDialog, QSlider,
+    QLabel, QPushButton, QFileDialog, QSlider, QTextEdit,
 )
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QPixmap
@@ -52,14 +52,16 @@ class MainWindow(QMainWindow):
     # ── UI 구성 ───────────────────────────────────────────────────────
 
     def _build_ui(self) -> QWidget:
+        self._title = self._make_title()
         self._video_screen = VideoScreen()
         self._video_slider = self._make_video_slider()
         self._time_label = self._make_time_label()
         self._btn_video_back = self._make_video_back_button()
         self._btn_video_play = self._make_video_play_button()
         self._btn_video_forward = self._make_video_forward_button()
-        self._btn_load = self._make_load_button()
         self._btn_ai = self._make_ai_toggle_button()
+        self._ai_log = self._make_ai_log()
+        self._btn_load = self._make_load_button()
 
         # 좌측 하단 컨트롤 레이아웃
         controls_layout = QHBoxLayout()
@@ -76,9 +78,9 @@ class MainWindow(QMainWindow):
 
         # 우측 레이아웃
         right_layout = QVBoxLayout()
-        right_layout.addWidget(self._btn_load)
-        right_layout.addStretch()
         right_layout.addWidget(self._btn_ai)
+        right_layout.addWidget(self._ai_log, stretch=1)
+        right_layout.addWidget(self._btn_load)
         
         # 바디 레이아웃
         body = QHBoxLayout()
@@ -86,16 +88,14 @@ class MainWindow(QMainWindow):
         body.addLayout(right_layout, stretch=1)
 
         # 헤더 레이아웃
-        header = QLabel("서북도서객체탐지체계")
-        header.setAlignment(Qt.AlignmentFlag.AlignLeft)
-        header.setFixedHeight(30)
-        header.setStyleSheet("color:white; font-size:20px; font-weight:bold;")
+        header = QHBoxLayout()
+        header.addWidget(self._title)
 
         # 전체 레이아웃
         root = QVBoxLayout()
-        root.setContentsMargins(20, 20, 20, 20)
+        root.setContentsMargins(15, 15, 15, 15)
         root.setSpacing(10)
-        root.addWidget(header)
+        root.addLayout(header)
         root.addLayout(body)
 
         container = QWidget()
@@ -104,9 +104,15 @@ class MainWindow(QMainWindow):
         return container
 
     # ── 버튼 구현 ───────────────────────────────────────────────────────
+    def _make_title(self) -> QLabel:
+        title = QLabel("서북도서객체탐지체계")
+        title.setAlignment(Qt.AlignmentFlag.AlignLeft)
+        title.setStyleSheet("color:white; font-size:20px; font-weight:bold;")
+        return title
+
     def _make_video_slider(self) -> QSlider:
         slider = QSlider(Qt.Orientation.Horizontal)
-        slider.setFixedHeight(45)
+        slider.setFixedHeight(40)
         slider.setStyleSheet("""
             QSlider::groove:horizontal {
                 height: 6px;
@@ -135,8 +141,8 @@ class MainWindow(QMainWindow):
 
     def _make_video_back_button(self) -> QPushButton:
         btn = QPushButton("<<")
-        btn.setFixedHeight(45)
-        btn.setFixedWidth(45)
+        btn.setFixedHeight(40)
+        btn.setFixedWidth(40)
         btn.setStyleSheet("""
                 QPushButton { color:white; font-weight:bold; border-radius:5px; }
                 QPushButton:hover { background:#444; }
@@ -145,8 +151,8 @@ class MainWindow(QMainWindow):
 
     def _make_video_play_button(self) -> QPushButton:
         btn = QPushButton("▶")
-        btn.setFixedHeight(45)
-        btn.setFixedWidth(45)
+        btn.setFixedHeight(40)
+        btn.setFixedWidth(40)
         btn.setStyleSheet("""
                 QPushButton { color:white; font-weight:bold; border-radius:5px; }
                 QPushButton:hover { background:#444; }
@@ -156,34 +162,50 @@ class MainWindow(QMainWindow):
 
     def _make_video_forward_button(self) -> QPushButton:
         btn = QPushButton(">>")
-        btn.setFixedHeight(45)
-        btn.setFixedWidth(45)
+        btn.setFixedHeight(40)
+        btn.setFixedWidth(40)
         btn.setStyleSheet("""
                 QPushButton { color:white; font-weight:bold; border-radius:5px; }
                 QPushButton:hover { background:#444; }
             """)
         return btn
     
-    def _make_load_button(self) -> QPushButton:
-        btn = QPushButton("영상 불러오기")
-        btn.setFixedHeight(45)
-        btn.setStyleSheet("""
-            QPushButton { color:white; font-weight:bold; border-radius:5px; }
-            QPushButton:hover { background:#444; }
-        """)
-        btn.clicked.connect(self._on_load_clicked)
-        return btn
-
     def _make_ai_toggle_button(self) -> QPushButton:
-        btn = QPushButton("AI 탐지")
+        btn = QPushButton("AI 탐지 OFF")
         btn.setCheckable(True)
-        btn.setFixedHeight(45)
+        btn.setFixedHeight(40)
         btn.setStyleSheet("""
-            QPushButton         { color:white; font-weight:bold; border-radius:5px; }
+            QPushButton         { color:white; font-weight:bold; border-radius:5px; font-size:15px; border: 1px solid #444; }
             QPushButton:hover { background:#444; }
             QPushButton:checked { background:#cc0000; }
         """)
         btn.toggled.connect(self._on_ai_toggled)
+        return btn
+
+    def _make_ai_log(self) -> QTextEdit:
+        log = QTextEdit()
+        log.setReadOnly(True)
+        log.setAlignment(Qt.AlignmentFlag.AlignBottom)
+        log.setText("[12:34] 김승휘 개껀지는 것 관측")
+        log.setStyleSheet("""
+            QTextEdit {
+                background-color: #2a2a2a;
+                color: white;
+                border: 1px solid #444;
+                border-radius: 5px;
+                font-size: 12px;
+            }
+        """)
+        return log
+    
+    def _make_load_button(self) -> QPushButton:
+        btn = QPushButton("영상 불러오기")
+        btn.setFixedHeight(40)
+        btn.setStyleSheet("""
+            QPushButton { color:white; font-weight:bold; border-radius:5px; font-size:15px; border: 1px solid #444; }
+            QPushButton:hover { background:#444; }
+        """)
+        btn.clicked.connect(self._on_load_clicked)
         return btn
 
     # ── 이벤트 핸들러 ─────────────────────────────────────────────────
@@ -199,6 +221,7 @@ class MainWindow(QMainWindow):
             self._pipeline.start()
 
     def _on_ai_toggled(self, enabled: bool) -> None:
+        self._btn_ai.setText(f"AI 탐지: {'ON' if enabled else 'OFF'}")
         self._pipeline.set_ai(enabled)
 
     def _on_frame_ready(self, pixmap: QPixmap) -> None:
