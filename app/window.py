@@ -7,6 +7,7 @@ from PyQt6.QtGui import QPixmap
 
 from app.interfaces import VideoPlayer
 
+
 class MainWindow(QMainWindow):
     """
     애플리케이션 최상위 창.
@@ -76,8 +77,8 @@ class MainWindow(QMainWindow):
         # 우측 레이아웃
         right_layout = QVBoxLayout()
         right_layout.addWidget(self._btn_load)
-        right_layout.addWidget(self._btn_ai)
         right_layout.addStretch()
+        right_layout.addWidget(self._btn_ai)
         
         # 바디 레이아웃
         body = QHBoxLayout()
@@ -98,13 +99,14 @@ class MainWindow(QMainWindow):
         root.addLayout(body)
 
         container = QWidget()
+        container.setStyleSheet("background-color:#1e1e1e;")
         container.setLayout(root)
         return container
 
     # ── 버튼 구현 ───────────────────────────────────────────────────────
     def _make_video_slider(self) -> QSlider:
         slider = QSlider(Qt.Orientation.Horizontal)
-        slider.setFixedHeight(30)
+        slider.setFixedHeight(45)
         slider.setStyleSheet("""
             QSlider::groove:horizontal {
                 height: 6px;
@@ -133,8 +135,8 @@ class MainWindow(QMainWindow):
 
     def _make_video_back_button(self) -> QPushButton:
         btn = QPushButton("<<")
-        btn.setFixedHeight(30)
-        btn.setFixedWidth(40)
+        btn.setFixedHeight(45)
+        btn.setFixedWidth(45)
         btn.setStyleSheet("""
                 QPushButton { color:white; font-weight:bold; border-radius:5px; }
                 QPushButton:hover { background:#444; }
@@ -143,8 +145,8 @@ class MainWindow(QMainWindow):
 
     def _make_video_play_button(self) -> QPushButton:
         btn = QPushButton("▶")
-        btn.setFixedHeight(30)
-        btn.setFixedWidth(40)
+        btn.setFixedHeight(45)
+        btn.setFixedWidth(45)
         btn.setStyleSheet("""
                 QPushButton { color:white; font-weight:bold; border-radius:5px; }
                 QPushButton:hover { background:#444; }
@@ -154,8 +156,8 @@ class MainWindow(QMainWindow):
 
     def _make_video_forward_button(self) -> QPushButton:
         btn = QPushButton(">>")
-        btn.setFixedHeight(30)
-        btn.setFixedWidth(40)
+        btn.setFixedHeight(45)
+        btn.setFixedWidth(45)
         btn.setStyleSheet("""
                 QPushButton { color:white; font-weight:bold; border-radius:5px; }
                 QPushButton:hover { background:#444; }
