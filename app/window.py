@@ -39,6 +39,7 @@ class MainWindow(QMainWindow):
 
         self._pipeline = player
         self._pipeline.frame_ready.connect(self._on_frame_ready)
+        self._pipeline.log_ready.connect(self._on_log_ready)
         self._pipeline.finished.connect(self._on_playback_finished)
 
         self.setCentralWidget(self._build_ui())
@@ -236,6 +237,9 @@ class MainWindow(QMainWindow):
 
     def _on_playback_finished(self) -> None:
         self._btn_ai.setChecked(False)
+    
+    def _on_log_ready(self, msg: str) -> None:
+        self._ai_log.append(msg)
 
     # ── 창 종료 처리 ──────────────────────────────────────────────────
 

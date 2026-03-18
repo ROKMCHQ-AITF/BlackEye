@@ -4,26 +4,28 @@ import numpy as np
 from PIL import Image, ImageDraw, ImageFont
 from PyQt6.QtCore import QThread, pyqtSignal
 from PyQt6.QtGui import QImage, QPixmap
-
+from app.logger import ShipLogger
 from app.detector import ShipDetector, Track
 
 
 class VideoPlaybackThread(QThread):
     """
-    영상 파일을 읽고, AI 탐지 결과를 프레임에 그려 Qt 화면으로 내보낸다.
+    영상 파일을 읽고, AI 탐지 결과를 프레임에 그려 Qt 화면으로 내보내고, 실시간 로그를 내보냄.
 
     담당: 비디오 팀
-    의존: OpenCV(읽기), Pillow(그리기), ShipDetector(탐지 및 추적)
+    의존: OpenCV(읽기), Pillow(그리기), ShipDetector(탐지 및 추적), ShipLogger(실시간 로그 계산)
     출력: frame_ready 시그널 → window.py의 VideoScreen
     """
 
     frame_ready = pyqtSignal(QPixmap)
+    log_ready = pyqtSignal(str) 
     DETECTION_INTERVAL = 5
 
     def __init__(self):
         super().__init__()
         self._detector = ShipDetector()
         self._cap: cv2.VideoCapture | None = None
+        self._logger = ShipLogger()
         self._ai_enabled = False
         self._running = False
 
@@ -56,6 +58,12 @@ class VideoPlaybackThread(QThread):
 
             if self._ai_enabled:
                 cached_tracks = self._detector.track(bgr_frame)
+                
+                for track in cached_tracks:
+                    x1, y1, x2, y2, track_id, conf, name = track
+                    log_msg = self._logger.update(track_id, name)
+                    if log_msg:
+                        self.log_ready.emit(log_msg)
             elif not self._ai_enabled:
                 cached_tracks = []
 

@@ -33,7 +33,7 @@ class ShipDetector:
         results = self._model.track(frame, tracker=self._tracker_config,
                                     persist=True, verbose=False,
                                     conf=self.CONFIDENCE_THRESHOLD)
-        return self._parse(results[0].boxes, with_id=True)
+        return self._parse(results[0].boxes, with_id=True)  
 
     def _parse(self, boxes, with_id: bool) -> list:
         out = []
