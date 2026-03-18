@@ -3,7 +3,7 @@ from PyQt6.QtWidgets import (
     QLabel, QPushButton, QFileDialog, QSlider, QTextEdit,
 )
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QPixmap
+from PyQt6.QtGui import QPixmap, QIcon
 
 from app.interfaces import VideoPlayer
 
@@ -29,17 +29,11 @@ class MainWindow(QMainWindow):
                         ├──────────────────────┤          │
     controls_layout ->  │                      │          │
                         └──────────────────────┴──────────┘
-
-    260318
-     - 헤더 추가
-     - QSlider 추가 임포트
-     - 영상 재생바, 영상 컨트롤러 추가 
-        ㄴ 김승휘는 기능 구현할 것
-
     """
 
     def __init__(self, player: VideoPlayer):
         super().__init__()
+        self.setWindowIcon(QIcon("Blackeye.ico"))
         self.setWindowTitle("BlackEye")
         self.resize(1100, 700)
 
@@ -53,6 +47,7 @@ class MainWindow(QMainWindow):
 
     def _build_ui(self) -> QWidget:
         self._title = self._make_title()
+        self._logo = self._make_logo()
         self._video_screen = VideoScreen()
         self._video_slider = self._make_video_slider()
         self._time_label = self._make_time_label()
@@ -89,6 +84,7 @@ class MainWindow(QMainWindow):
 
         # 헤더 레이아웃
         header = QHBoxLayout()
+        header.addWidget(self._logo)
         header.addWidget(self._title)
 
         # 전체 레이아웃
@@ -104,6 +100,17 @@ class MainWindow(QMainWindow):
         return container
 
     # ── 버튼 구현 ───────────────────────────────────────────────────────
+    def _make_logo(self) -> QLabel:
+        logo = QLabel()
+        pixmap = QPixmap("rokmc.png").scaled(
+            35, 35,
+            Qt.AspectRatioMode.KeepAspectRatio,
+            Qt.TransformationMode.SmoothTransformation
+        )
+        logo.setPixmap(pixmap)
+        logo.setFixedSize(35, 35)
+        return logo
+
     def _make_title(self) -> QLabel:
         title = QLabel("서북도서객체탐지체계")
         title.setAlignment(Qt.AlignmentFlag.AlignLeft)
