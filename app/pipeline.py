@@ -42,6 +42,9 @@ class VideoPlaybackThread(QThread):
 
     def stop(self) -> None:
         self._running = False
+    
+    def clear_logger(self) -> None:
+        self._logger = ShipLogger() #새로만들어서 덮어씌운다.
 
     # ── 재생 루프 ─────────────────────────────────────────────────────
 
