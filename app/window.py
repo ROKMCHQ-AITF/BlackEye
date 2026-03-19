@@ -251,6 +251,7 @@ class MainWindow(QMainWindow):
 
     def _on_ai_log_clear(self) -> None:
         self._ai_log.clear()
+        self._pipeline.clear_logger()
     
     def _on_log_ready(self, msg: str) -> None:
         self._ai_log.append(msg)
