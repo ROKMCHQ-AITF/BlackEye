@@ -29,6 +29,10 @@ class MainWindow(QMainWindow):
                         ├──────────────────────┤          │
     controls_layout ->  │                      │          │
                         └──────────────────────┴──────────┘
+
+    video_name.mp4 
+    1920x1080 @ 30 Hz
+
     """
 
     def __init__(self, player: VideoPlayer):
@@ -58,6 +62,7 @@ class MainWindow(QMainWindow):
         self._btn_ai = self._make_ai_toggle_button()
         self._btn_log_reset = self._make_btn_log_reset()
         self._ai_log = self._make_ai_log()
+        self._btn_load_rtsp = self._make_load_rtsp_button()
         self._btn_load = self._make_load_button()
 
         # 좌측 하단 컨트롤 레이아웃
@@ -78,6 +83,7 @@ class MainWindow(QMainWindow):
         right_layout.addWidget(self._btn_ai)
         right_layout.addWidget(self._btn_log_reset)
         right_layout.addWidget(self._ai_log, stretch=1)
+        right_layout.addWidget(self._btn_load_rtsp)
         right_layout.addWidget(self._btn_load)
         
         # 바디 레이아웃
@@ -217,6 +223,15 @@ class MainWindow(QMainWindow):
         """)
         return log
     
+    def _make_load_rtsp_button(self) -> QPushButton:
+        btn = QPushButton("RTSP 불러오기")
+        btn.setFixedHeight(40)
+        btn.setStyleSheet("""
+            QPushButton { color:white; font-weight:bold; border-radius:5px; font-size:15px; border: 1px solid #444; }
+            QPushButton:hover { background:#444; }
+        """)
+        return btn
+    
     def _make_load_button(self) -> QPushButton:
         btn = QPushButton("영상 불러오기")
         btn.setFixedHeight(40)
@@ -236,8 +251,10 @@ class MainWindow(QMainWindow):
 
     def _on_load_clicked(self) -> None:
         file_path, _ = QFileDialog.getOpenFileName(self, "비디오 파일 선택")
-        if file_path and self._pipeline.load(file_path):    
+        if file_path and self._pipeline.load(file_path):
             self._pipeline.start()
+            filename = file_path.split("/")[-1]
+            self._video_screen.set_video_info(filename, 1920, 1080, 30.0)
 
     def _on_ai_toggled(self, enabled: bool) -> None:
         self._btn_ai.setText(f"AI 탐지: {'ON' if enabled else 'OFF'}")
@@ -262,6 +279,7 @@ class MainWindow(QMainWindow):
         self._pipeline.wait()
         super().closeEvent(event)
 
+# ── 플레이 ──────────────────────────────────────────────────
 
 class VideoScreen(QLabel):
     """
@@ -271,13 +289,33 @@ class VideoScreen(QLabel):
 
     def __init__(self):
         super().__init__()
+        self._setup_screen()
+        self._overlay = self._make_overlay()
+
+    # ── UI 구성 ───────────────────────────────────────────────────────
+
+    def _setup_screen(self) -> None:
         self.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.setMinimumSize(640, 480)
         self.setText("영상이 여기에 표시됩니다.")
         self.setStyleSheet("""
             background:black; color:white;
-            border:2px solid #444; font-size:16px; font-weight:bold;
+            font-size:16px; font-weight:bold;
         """)
+
+    def _make_overlay(self) -> QLabel:
+        overlay = QLabel(self)
+        overlay.setStyleSheet("""
+            color: white;
+            font-size: 12px;
+            background-color: rgba(0, 0, 0, 128);
+        """)
+        overlay.setAlignment(Qt.AlignmentFlag.AlignTop | Qt.AlignmentFlag.AlignLeft)
+        overlay.adjustSize()
+        overlay.hide()
+        return overlay
+
+    # ── 이벤트 ────────────────────────────────────────────────────
 
     def show_frame(self, pixmap: QPixmap) -> None:
         scaled = pixmap.scaled(
@@ -286,3 +324,13 @@ class VideoScreen(QLabel):
             Qt.TransformationMode.SmoothTransformation,
         )
         self.setPixmap(scaled)
+
+    def set_video_info(self, filename: str, width: int, height: int, fps: float) -> None:
+        self._overlay.setText(
+            f"{filename}\n{width}x{height} @ {fps:.1f}Hz"
+        )
+        self._overlay.adjustSize()
+        self._overlay.show()
+
+    def clear_video_info(self) -> None:
+        self._overlay.hide()
