@@ -56,6 +56,7 @@ class MainWindow(QMainWindow):
         self._btn_video_play = self._make_video_play_button()
         self._btn_video_forward = self._make_video_forward_button()
         self._btn_ai = self._make_ai_toggle_button()
+        self._btn_log_reset = self._make_btn_log_reset()
         self._ai_log = self._make_ai_log()
         self._btn_load = self._make_load_button()
 
@@ -75,6 +76,7 @@ class MainWindow(QMainWindow):
         # 우측 레이아웃
         right_layout = QVBoxLayout()
         right_layout.addWidget(self._btn_ai)
+        right_layout.addWidget(self._btn_log_reset)
         right_layout.addWidget(self._ai_log, stretch=1)
         right_layout.addWidget(self._btn_load)
         
@@ -189,12 +191,21 @@ class MainWindow(QMainWindow):
         """)
         btn.toggled.connect(self._on_ai_toggled)
         return btn
+    
+    def _make_btn_log_reset(self) -> QPushButton:
+        btn = QPushButton("로그 지우기")
+        btn.setFixedHeight(40)
+        btn.setStyleSheet("""
+            QPushButton { color:white; font-weight:bold; border-radius:5px; font-size:15px; border: 1px solid #444; }
+            QPushButton:hover { background:#444; }
+        """)
+        btn.clicked.connect(self._on_ai_log_clear)
+        return btn
 
     def _make_ai_log(self) -> QTextEdit:
         log = QTextEdit()
         log.setReadOnly(True)
         log.setAlignment(Qt.AlignmentFlag.AlignBottom)
-        log.setText("[12:34] 김승휘 개껀지는 것 관측")
         log.setStyleSheet("""
             QTextEdit {
                 background-color: #2a2a2a;
@@ -237,6 +248,9 @@ class MainWindow(QMainWindow):
 
     def _on_playback_finished(self) -> None:
         self._btn_ai.setChecked(False)
+
+    def _on_ai_log_clear(self) -> None:
+        self._ai_log.clear()
     
     def _on_log_ready(self, msg: str) -> None:
         self._ai_log.append(msg)
