@@ -231,8 +231,10 @@ class MainWindow(QMainWindow):
     def _on_video_play_clicked(self) -> None:
         if self._btn_video_play.text() == "▶":
             self._btn_video_play.setText("■")
+            self._pipeline.pause()
         else:
             self._btn_video_play.setText("▶")
+            self._pipeline.pause()
 
     def _on_load_clicked(self) -> None:
         file_path, _ = QFileDialog.getOpenFileName(self, "비디오 파일 선택")

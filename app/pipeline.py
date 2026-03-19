@@ -46,15 +46,22 @@ class VideoPlaybackThread(QThread):
     def clear_logger(self) -> None:
         self._logger = ShipLogger() #새로만들어서 덮어씌운다.
 
+    def pause(self) -> None:
+        self._paused = not self._paused
     # ── 재생 루프 ─────────────────────────────────────────────────────
 
     def run(self) -> None:
         self._running = True
+        self._paused = False
         fps = self._cap.get(cv2.CAP_PROP_FPS) or 30
         cached_tracks: list[Track] = []
         frame_index = 0
 
+
         while self._running:
+            if self._paused:
+                time.sleep(0.1)
+                continue
             ok, bgr_frame = self._cap.read()
             if not ok:
                 break
